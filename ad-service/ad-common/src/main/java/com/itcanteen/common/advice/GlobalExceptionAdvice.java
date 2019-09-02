@@ -25,7 +25,7 @@ public class GlobalExceptionAdvice {
 
 @ExceptionHandler(value = AdException.class)
     public CommonResponse<String> handlerAdException(AdException exception){
-    log.info("handlerAdException");
+        log.info("handlerAdException");
         CommonResponse<String> response = new CommonResponse<>(-1, "error");
         response.setData(exception.getMessage());
         return response;
