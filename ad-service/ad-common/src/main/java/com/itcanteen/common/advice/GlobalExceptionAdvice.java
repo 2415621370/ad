@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionAdvice {
 
-@ExceptionHandler(value = AdException.class)
+    @ExceptionHandler(value = AdException.class)
     public CommonResponse<String> handlerAdException(AdException exception){
         log.info("handlerAdException");
         CommonResponse<String> response = new CommonResponse<>(-1, "error");

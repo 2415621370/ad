@@ -96,7 +96,7 @@ public class PlanServiceImpl implements IPlanService {
 
     }
 
-
+   @Transactional
     public AdPlanResponse updateAdPlan(AdPlanRequest request) throws  AdException{
         if(!request.updateValidate()){
             throw  new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
@@ -124,7 +124,7 @@ public class PlanServiceImpl implements IPlanService {
 
 
     }
-
+    @Transactional
     public void deletePlan(AdPlanRequest request)
             throws AdException{
         if(!request.deleteValidate()){

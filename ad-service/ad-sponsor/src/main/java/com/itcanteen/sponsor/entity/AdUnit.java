@@ -1,5 +1,6 @@
 package com.itcanteen.sponsor.entity;
 
+import com.itcanteen.sponsor.constant.CommonStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,11 @@ public class AdUnit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id" ,nullable = false)
     private Long id;
+
+    @Column(name = "plan_id" ,nullable = false)
+    private Long planId;
+
+
     @Column(name = "unit_name" ,nullable = false)
     private String unitName;
 
@@ -40,4 +46,18 @@ public class AdUnit {
 
     @Column(name = "update_time" ,nullable = false)
     private Date updateTime;
+
+
+    public AdUnit(Long planId,String unitName,
+                  Integer positionType,Long budget){
+
+        this.planId = planId;
+        this.unitName = unitName;
+        this.unitStatus = CommonStatus.VALID.getStatus();
+        this.positionType = positionType;
+        this.budget = budget;
+        this.createTime = new Date();
+        this.updateTime = new Date();
+
+    }
 }
