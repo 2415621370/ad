@@ -18,10 +18,21 @@ public class CommonUtils {
             "yyyy-MM-dd","yyyy/MM/dd","yyyy.MM.dd"
     };
 
+    /**
+     * 获取字符串MD5值
+     * @param str
+     * @return
+     */
     public static String md5(String str){
         return DigestUtils.md5Hex(str).toUpperCase();
     }
 
+    /**
+     *获取日期类型
+     * @param dateString
+     * @return
+     * @throws AdException
+     */
     public static Date parseStringToDate(String dateString) throws AdException {
 
         try {

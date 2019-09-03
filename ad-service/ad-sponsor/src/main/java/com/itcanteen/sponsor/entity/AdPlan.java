@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
+ *  推广计划表
  * @author baimugudu
  * @email 2415621370@qq.com
  * @date 2019/9/2 11:21

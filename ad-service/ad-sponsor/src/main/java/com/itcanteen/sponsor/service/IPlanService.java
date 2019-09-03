@@ -1,8 +1,12 @@
 package com.itcanteen.sponsor.service;
 
 import com.itcanteen.common.exception.AdException;
+import com.itcanteen.sponsor.entity.AdPlan;
+import com.itcanteen.sponsor.vo.AdPlanGetRequest;
 import com.itcanteen.sponsor.vo.AdPlanRequest;
 import com.itcanteen.sponsor.vo.AdPlanResponse;
+
+import java.util.List;
 
 /**
  * @author baimugudu
@@ -11,5 +15,15 @@ import com.itcanteen.sponsor.vo.AdPlanResponse;
  */
 public interface IPlanService {
 
-    public AdPlanResponse createAdPlan(AdPlanRequest request) throws AdException;
+    public AdPlanResponse createAdPlan(AdPlanRequest request)
+            throws AdException;
+
+    public List<AdPlan> getAdPlanByIds(AdPlanGetRequest request)
+            throws AdException;
+
+    public AdPlanResponse updateAdPlan(AdPlanRequest request)
+            throws  AdException;
+
+    public void deletePlan(AdPlanRequest request)
+            throws AdException;
 }

@@ -19,6 +19,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class AdPlanRequest {
 
+    private Long id;
+
     private Long userId;
 
 
@@ -36,5 +38,14 @@ public class AdPlanRequest {
                 &&!StringUtils.isEmpty(planName)
                 &&!StringUtils.isEmpty(startTime)
                 &!StringUtils.isEmpty(endTime);
+    }
+
+
+    public boolean updateValidate(){
+        return id!=null && userId!=null;
+    }
+
+    public boolean deleteValidate(){
+        return id!=null && userId!=null;
     }
 }

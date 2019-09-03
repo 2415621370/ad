@@ -8,13 +8,14 @@ package com.itcanteen.sponsor.constant;
  */
 public class Constants {
 
+    /**
+     * 错误信息类
+     */
     public static class ErrorMsg{
-
         public static final String REQUEST_PARAMS_ERROR="请求参数错误";
         public static final String SAME_USER_ERROR="已存在相同的用户";
-
         public static final String CAN_NOT_FIND_USER="没有找到该用户";
-
         public static final String SAME_PLAN_NAME="已存在相同的广告计划";
+        public static final String CAN_NOT_FIND_PLAN="没有找到该推广计划";
     }
 }
