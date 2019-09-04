@@ -4,15 +4,20 @@ import com.itcanteen.common.exception.AdException;
 import com.itcanteen.sponsor.constant.Constants;
 import com.itcanteen.sponsor.dao.AdPlanRepository;
 import com.itcanteen.sponsor.dao.AdUnitRepository;
+import com.itcanteen.sponsor.dao.CreativeRepository;
+import com.itcanteen.sponsor.dao.unit_condition.AdUnitDistrictRepository;
+import com.itcanteen.sponsor.dao.unit_condition.AdUnitItRepository;
 import com.itcanteen.sponsor.dao.unit_condition.AdUnitKeywordRepository;
+import com.itcanteen.sponsor.dao.unit_condition.CreativeUnitRepository;
 import com.itcanteen.sponsor.entity.AdPlan;
 import com.itcanteen.sponsor.entity.AdUnit;
+import com.itcanteen.sponsor.entity.unit_condition.AdUnitDistrict;
+import com.itcanteen.sponsor.entity.unit_condition.AdUnitIt;
 import com.itcanteen.sponsor.entity.unit_condition.AdUnitKeyword;
+import com.itcanteen.sponsor.entity.unit_condition.CreativeUnit;
 import com.itcanteen.sponsor.service.IAdUnitService;
-import com.itcanteen.sponsor.vo.AdUnitKeywordRequest;
-import com.itcanteen.sponsor.vo.AdUnitKeywordResponse;
-import com.itcanteen.sponsor.vo.AdUnitRequest;
-import com.itcanteen.sponsor.vo.AdUnitResponse;
+import com.itcanteen.sponsor.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,23 +33,44 @@ import java.util.stream.Collectors;
  */
 
 @Service
+@Slf4j
+@Transactional
 public class AdUnitServiceImpl implements IAdUnitService {
+
+
+    private final CreativeUnitRepository creativeUnitRepository;
+
+
+    final
+    CreativeRepository creativeRepository;
+
+
+    final
+    AdUnitItRepository unitItRepository;
 
 
     final
     AdPlanRepository planRepository;
 
-    final AdUnitKeywordRepository unitKeywordRepository;
+    final
+    AdUnitKeywordRepository unitKeywordRepository;
+
+    final
+    AdUnitDistrictRepository unitDistrictRepository;
 
 
     final
     AdUnitRepository unitRepository;
 
     @Autowired
-    public AdUnitServiceImpl(AdUnitRepository unitRepository, AdPlanRepository planRepository, AdUnitKeywordRepository unitKeywordRepository) {
+    public AdUnitServiceImpl(AdUnitRepository unitRepository, AdPlanRepository planRepository, AdUnitKeywordRepository unitKeywordRepository, AdUnitItRepository unitItRepository, AdUnitDistrictRepository unitDistrictRepository, CreativeRepository creativeRepository, CreativeUnitRepository creativeUnitRepository) {
         this.unitRepository = unitRepository;
         this.planRepository = planRepository;
         this.unitKeywordRepository = unitKeywordRepository;
+        this.unitItRepository = unitItRepository;
+        this.unitDistrictRepository = unitDistrictRepository;
+        this.creativeRepository = creativeRepository;
+        this.creativeUnitRepository = creativeUnitRepository;
     }
 
     @Override
@@ -54,6 +80,7 @@ public class AdUnitServiceImpl implements IAdUnitService {
 
         //验证参数是否正确
         if (!request.createvalidate()) {
+            log.info("---------------");
             throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
         }
         //y验证传过来的planid是否存在
@@ -89,6 +116,7 @@ public class AdUnitServiceImpl implements IAdUnitService {
             throws AdException {
 
         if (!request.validate()) {
+            log.info("--------");
             throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
         }
 
@@ -96,7 +124,9 @@ public class AdUnitServiceImpl implements IAdUnitService {
                 AdUnitKeywordRequest.UnitKeyword::getUnitId)
                 .collect(Collectors.toList());
 
+        log.info("unitIds->{}", unitIds);
         if (!isRelatedUnitExist(unitIds)) {
+            log.info("---------yyyyyyyyyyy--------");
             throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
         }
 
@@ -136,7 +166,7 @@ public class AdUnitServiceImpl implements IAdUnitService {
         List<AdUnitKeyword> adUnitKeywordList = new ArrayList<>();
 
         request.getUnitKeyWords().forEach(
-                i->{
+                i -> {
                     adUnitKeywordList.add(
                             new AdUnitKeyword(
                                     i.getUnitId(),
@@ -145,14 +175,111 @@ public class AdUnitServiceImpl implements IAdUnitService {
                     );
                 }
         );
-
-        ids =   unitKeywordRepository.saveAll(adUnitKeywordList).stream().map(
+        ids = unitKeywordRepository.saveAll(adUnitKeywordList).stream().map(
                 AdUnitKeyword::getId
+        ).collect(Collectors.toList());
+        return new AdUnitKeywordResponse(ids);
+
+    }
+
+
+    public AdUnitItResponse creeteUnitIt(AdUnitItRequest request)
+            throws AdException {
+        if (!request.validate()) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+        List<Long> unitIds = request.getUnitIts().stream().map(
+                AdUnitItRequest.UnitIt::getUnitId
+        ).collect(Collectors.toList());
+
+        if (!isRelatedUnitExist(unitIds)) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+        List<Long> ids = Collections.emptyList();
+        ArrayList<AdUnitIt> adUnitIts = new ArrayList<>();
+        request.getUnitIts().forEach(i -> adUnitIts.
+                add(new AdUnitIt(i.getUnitId(), i.getItTag())));
+
+        ids = unitItRepository.saveAll(adUnitIts)
+                .stream()
+                .map(AdUnitIt::getId).collect(Collectors.toList());
+        return new AdUnitItResponse(ids);
+
+
+    }
+
+
+    public AdUnitDistrictResponse createUnitDistrict(AdUnitDistrictRequest request)
+            throws AdException {
+        if (!request.validate()) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+        List unitIds = request.getUnitDistrictList().stream().map(
+                AdUnitDistrictRequest.UnitDistrict::getUnitId
+        ).collect(Collectors.toList());
+
+        if (!isRelatedUnitExist(unitIds)) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+
+        ArrayList<AdUnitDistrict> adUnitDistricts = new ArrayList<>();
+
+        request.getUnitDistrictList().forEach(
+                i -> adUnitDistricts.add(new AdUnitDistrict(i.getUnitId(), i.getProvince(), i.getCity()))
+        );
+
+        List ids = unitDistrictRepository.saveAll(adUnitDistricts).stream().map(
+                AdUnitDistrict::getId
+        ).collect(Collectors.toList());
+
+        return new AdUnitDistrictResponse(ids);
+
+
+    }
+
+
+    public CreativeUnitResponse createCreativeUnit(CreativeUnitRequest request) throws AdException {
+
+        if (!request.validate()) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+        List unitIds = request.getCreativeUnitItemList().stream().map(
+                CreativeUnitRequest.CreativeUnitItem::getUnitId
+        ).collect(Collectors.toList());
+
+        List creativeIds = request.getCreativeUnitItemList().stream().map(
+                CreativeUnitRequest.CreativeUnitItem::getCreativeId
         ).collect(Collectors.toList());
 
 
+        if (!isRelatedUnitExist(unitIds)) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
 
-        return new AdUnitKeywordResponse(ids);
+        if (!isRelatedCreativeExist(creativeIds)) {
+            throw new AdException(Constants.ErrorMsg.REQUEST_PARAMS_ERROR);
+        }
+
+        ArrayList<CreativeUnit> creativeUnits = new ArrayList<>();
+
+        request.getCreativeUnitItemList().forEach(
+                i -> creativeUnits.add(
+                        new CreativeUnit(i.getCreativeId(), i.getUnitId())
+                )
+        );
+
+
+        List ids = creativeUnitRepository.saveAll(creativeUnits).stream().map(
+                CreativeUnit::getId
+        ).collect(Collectors.toList());
+
+        return new CreativeUnitResponse(ids);
+
 
     }
 
@@ -163,5 +290,14 @@ public class AdUnitServiceImpl implements IAdUnitService {
         }
         return unitRepository.findAllById(unitIds).size() ==
                 new HashSet<>(unitIds).size();
+    }
+
+    public boolean isRelatedCreativeExist(List<Long> creativeIds) {
+        if (CollectionUtils.isEmpty(creativeIds)) {
+            return false;
+        }
+
+        return creativeRepository.findAllById(creativeIds).size() ==
+                new HashSet<>(creativeIds).size();
     }
 }

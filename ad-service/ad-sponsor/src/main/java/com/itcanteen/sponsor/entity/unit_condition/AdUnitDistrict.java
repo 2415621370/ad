@@ -42,4 +42,12 @@ public class AdUnitDistrict {
      */
     @Column(name = "city", nullable = false)
     private String city;
+
+    public AdUnitDistrict( Long unitId,String province,String city){
+
+        this.unitId = unitId;
+        this.province = province;
+        this.city = city;
+
+    }
 }

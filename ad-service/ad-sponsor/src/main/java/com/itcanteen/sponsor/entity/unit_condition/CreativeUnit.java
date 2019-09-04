@@ -31,4 +31,9 @@ public class CreativeUnit {
 
     @Column(name = "unit_id", nullable = false)
     private Long unitId;
+
+    public CreativeUnit(Long creativeId,Long unitId){
+        this.creativeId=creativeId;
+        this.unitId = unitId;
+    }
 }
