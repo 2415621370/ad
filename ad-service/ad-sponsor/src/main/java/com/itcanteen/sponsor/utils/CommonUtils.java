@@ -1,6 +1,10 @@
 package com.itcanteen.sponsor.utils;
 
 import com.itcanteen.common.exception.AdException;
+import com.itcanteen.sponsor.constant.Constants;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.time.DateUtils;
 
@@ -42,5 +46,16 @@ public class CommonUtils {
             throw new AdException(e.getMessage());
         }
 
+    }
+
+
+    public static String jwtSign(String userId,String username){
+        JwtBuilder jwtBuilder = Jwts.builder().setId(userId) //y用户id
+                .setSubject(username) //用户名
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, Constants.JWT_SIGN_STR)
+                .setExpiration(new Date(new Date().getTime()+60000*120));
+
+        return jwtBuilder.compact();
     }
 }

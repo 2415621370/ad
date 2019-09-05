@@ -8,6 +8,7 @@ import com.itcanteen.sponsor.service.IUserService;
 import com.itcanteen.sponsor.utils.CommonUtils;
 import com.itcanteen.sponsor.vo.CreateUserRequest;
 import com.itcanteen.sponsor.vo.CreateUserResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Slf4j
 public class UserServiceImpl implements IUserService {
 
 
@@ -52,15 +54,24 @@ public class UserServiceImpl implements IUserService {
         //保存
         AdUser adUser = userRepository.save(new AdUser(
                 userRequest.getUsername(),
-                CommonUtils.md5(userRequest.getUsername())
+              //  CommonUtils.md5(userRequest.getUsername())
+               // CommonUtils.jwtSign()
+                "token"
                 )
         );
+
+       Long userId =  adUser.getId();
+       String token =  CommonUtils.jwtSign(userId+"",adUser.getUsername());
+       log.info("token:{}",token);
+        adUser.setToken(token);
+        AdUser dbUser = userRepository.save(adUser);
+
         return new CreateUserResponse(
-                adUser.getId(),
-                adUser.getUsername(),
-                adUser.getToken(),
-                adUser.getCreateTime(),
-                adUser.getUpdateTime()
+                dbUser.getId(),
+                dbUser.getUsername(),
+                dbUser.getToken(),
+                dbUser.getCreateTime(),
+                dbUser.getUpdateTime()
         );
     }
 }

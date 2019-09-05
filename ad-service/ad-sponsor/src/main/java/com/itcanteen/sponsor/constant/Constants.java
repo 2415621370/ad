@@ -8,6 +8,9 @@ package com.itcanteen.sponsor.constant;
  */
 public class Constants {
 
+
+    public static final String JWT_SIGN_STR="itcanteen";
+
     /**
      * 错误信息类
      */
@@ -17,7 +20,9 @@ public class Constants {
         public static final String CAN_NOT_FIND_USER="没有找到该用户";
         public static final String SAME_PLAN_NAME="已存在相同的广告计划";
         public static final String CAN_NOT_FIND_PLAN="没有找到该广告计划";
-
         public static final String SAME_UNIT_ERROR="已存在相同的推广单元";
     }
+
+
+
 }
