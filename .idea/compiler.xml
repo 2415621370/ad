@@ -9,6 +9,7 @@
         <module name="ad-common" />
         <module name="ad-eureka" />
         <module name="ad-gateway" />
+        <module name="ad-search" />
         <module name="ad-sponsor" />
         <module name="ad-test" />
       </profile>
