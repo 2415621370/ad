@@ -7,6 +7,11 @@ import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author baimugudu
@@ -26,11 +31,52 @@ public class MySqlTest {
             EventData data = event.getData();
             //修改
             if(data instanceof UpdateRowsEventData){
+                long tableId = ((UpdateRowsEventData) data).getTableId();
+System.out.println(00000000);
+                //((UpdateRowsEventData) data).get
+
+                List<Serializable[]> collect = ((UpdateRowsEventData) data).getRows().stream()
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
+
+                for (Serializable[] after : collect){
+
+                    Map<String, String> afterMap = new HashMap<>();
+
+                    int colLen = after.length;
+
+                    for (int ix = 0; ix < colLen; ++ix) {
+
+                        String colValue = after[ix].toString();
+                        System.out.println(colValue);
+                    }
+
+
+                }
+
                 System.out.println(data.toString());
                 //添加
             }else if(data instanceof WriteRowsEventData){
                 System.out.println(data.toString());
-            }else if(data instanceof DeleteRowsEventData){
+                List<Serializable[]> rows = ((WriteRowsEventData) data).getRows();
+                System.out.println(rows);
+                for (Serializable[] after : rows){
+
+                    Map<String, String> afterMap = new HashMap<>();
+
+                    int colLen = after.length;
+
+                    for (int ix = 0; ix < colLen; ++ix) {
+
+                        String colValue = after[ix].toString();
+                        System.out.println(colValue);
+                    }
+
+
+                    }
+
+
+                }else if(data instanceof DeleteRowsEventData){
                 System.out.println(data.toString());
             }
         });

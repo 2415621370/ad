@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author baimugudu
  * @email 2415621370@qq.com
@@ -15,5 +18,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BinLogKafkaData {
 
-    String
+    private String tableName;
+
+    private String eventType;
+
+    private List<Map<String, String>> after;
+
+    private List<Map<String, String>> before;
 }
