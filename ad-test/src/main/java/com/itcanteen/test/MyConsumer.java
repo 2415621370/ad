@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 
 import java.util.Collections;
 import java.util.Properties;
@@ -73,9 +74,73 @@ public class MyConsumer {
          }
      }
 
+    /**
+     * 手动异步提交位移，带回调函数
+     */
+     public static  void test3(){
+         properties.put("enable.auto.commit",false);
+         consumer = new KafkaConsumer<>(properties);
+         consumer.subscribe(Collections.singletonList("test0"));
+         while (true){
+             ConsumerRecords<String, String> consumerRecords = consumer.poll(100);
+
+             for(ConsumerRecord<String,String> record:consumerRecords){
+                 log.info(record.topic());
+                 log.info(record.partition()+"");
+                 log.info(record.offset()+"");
+                 log.info(record.key()+"");
+                 log.info(record.value()+"");
+             }
+
+
+             consumer.commitAsync(((map, e) ->{
+                 if(e!=null){
+                     log.info("error");
+                 }
+             } ));
+         }
+     }
+
+    /**
+     * 同步和异步混合提交（推荐使用）
+     */
+    public static  void test4(){
+         properties.put("enable.auto.commit",false);
+         consumer = new KafkaConsumer<>(properties);
+         consumer.subscribe(Collections.singletonList("test0"));
+
+         try{
+             while (true){
+                 ConsumerRecords<String, String> consumerRecords = consumer.poll(100);
+
+                 for(ConsumerRecord<String,String> record:consumerRecords){
+                     log.info(record.topic());
+                     log.info(record.partition()+"");
+                     log.info(record.offset()+"");
+                     log.info(record.key()+"");
+                     log.info(record.value()+"");
+                 }
+
+                 consumer.commitAsync();
+             }
+         }catch(Exception e){
+             log.info(e.getMessage());
+
+         }finally {
+             try{
+                 consumer.commitSync();
+             }finally {
+                 consumer.close();
+             }
+
+         }
+
+     }
+
 
      public static void main(String[] args){
         // test1();
-         test2();
+       //  test2();
+         test3();
      }
 }

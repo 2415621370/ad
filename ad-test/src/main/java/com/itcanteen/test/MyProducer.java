@@ -37,7 +37,7 @@ public class MyProducer {
      */
     public static  void test1(){
         ProducerRecord<String, String> stringStringProducerRecord =
-                new ProducerRecord<>("test0", "name", "1701B");
+                new ProducerRecord<>("test0", "name", "1701B2121");
         producer.send(stringStringProducerRecord);
         producer.close();
     }
@@ -92,9 +92,14 @@ public class MyProducer {
         @Override
         public void onCompletion(RecordMetadata recordMetadata, Exception e) {
             if(e!=null){
+
+
                 e.printStackTrace();
                 return;
             }
+
+
+
 
            log.info("recordMetadata.topic->{}",recordMetadata.topic());
             log.info("recordMetadata.partition->{}",recordMetadata.partition());

@@ -2,11 +2,13 @@ package com.itcanteen.mysql.listenter;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.event.*;
+import com.itcanteen.kafka.MysqlBinLogProducer;
 import com.itcanteen.mysql.TemplateHolder;
 import com.itcanteen.mysql.vo.BinLogKafkaData;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import scala.util.parsing.json.JSON;
+
 
 import java.io.Serializable;
 import java.util.*;
@@ -15,135 +17,110 @@ import java.util.stream.Collectors;
 /**
  * @author baimugudu
  * @email 2415621370@qq.com
- * @date 2019/9/9 17:47
+ * @date 2019/9/11 10:55
  */
+
 @Component
-@Slf4j
 public class MySqlBinLogListener implements BinaryLogClient.EventListener {
 
-     @Autowired
+
+    static final ThreadLocal<BinLogKafkaData> sThreadLocal = new ThreadLocal<BinLogKafkaData>();
+
+    @Autowired
     TemplateHolder templateHolder;
+
+    @Autowired
+    MysqlBinLogProducer mysqlBinLogProducer;
+
+
+    static BinLogKafkaData binLogKafkaData = new BinLogKafkaData();
+
+
+    private String tableName;
+    private String dbName;
+
     @Override
     public void onEvent(Event event) {
-        EventType type = event.getHeader().getEventType();
-
-
-        if (type == EventType.TABLE_MAP){
-           // log.info("------32222222222--------");
+        EventType eventType = event.getHeader().getEventType();
+        System.out.println(eventType.toString());
+        if(eventType == EventType.TABLE_MAP){
             TableMapEventData data = event.getData();
-            String tableName = data.getTable();
-            log.info(tableName);
-             String dbName = data.getDatabase();
-            templateHolder.loadMeta(dbName,tableName);
 
-            BinLogKafkaData rowData = buildRowData(tableName,event.getData());
-            if (rowData == null) {
-                return;
-            }
-
-            rowData.setEventType("");
-
-          /*   log.info(dbName);
-            byte[] columnTypes = data.getColumnTypes();
-           System.out.println(columnTypes);
-            int[] columnMetadata = data.getColumnMetadata();
-            System.out.println(columnMetadata);*/
-
-
-          log.info("YYYYYYYYYYYYY",rowData.toString());
+            System.out.println(data.getTable());
+            System.out.println(data.getDatabase());
+           tableName =  data.getTable();
+            dbName =  data.getDatabase();
+            binLogKafkaData.setTableName(tableName);
+            return ;
         }
+
+        if(eventType!=EventType.EXT_UPDATE_ROWS
+                &&eventType!=EventType.EXT_WRITE_ROWS
+                &&eventType!=EventType.EXT_DELETE_ROWS){
+            return ;
+        }
+
+
+        templateHolder.loadMeta(dbName,tableName);
+
+        buildRowData(event.getData());
+
+       String message =  com.alibaba.fastjson.JSON.toJSONString(binLogKafkaData);
+
+        mysqlBinLogProducer.send(message);
+
+
 
 
     }
 
 
-    private List<Serializable[]> getAfterValues(EventData eventData) {
-
-        if (eventData instanceof WriteRowsEventData) {
-            return ((WriteRowsEventData) eventData).getRows();
+    private List<Serializable[]> getAfterValues(EventData eventData){
+        if(eventData instanceof WriteRowsEventData){
+            binLogKafkaData.setEventType("WriteRowsEventData");
+           return  ((WriteRowsEventData) eventData).getRows();
+        }
+        if(eventData instanceof  UpdateRowsEventData){
+            binLogKafkaData.setEventType("UpdateRowsEventData");
+           return  ((UpdateRowsEventData) eventData).getRows().stream()
+                   .map(Map.Entry::getValue)
+                   .collect(Collectors.toList());
         }
 
-        if (eventData instanceof UpdateRowsEventData) {
-            return ((UpdateRowsEventData) eventData).getRows().stream()
-                    .map(Map.Entry::getValue)
-                    .collect(Collectors.toList());
-        }
-
-        if (eventData instanceof DeleteRowsEventData) {
-            return ((DeleteRowsEventData) eventData).getRows();
+        if(eventData instanceof  DeleteRowsEventData){
+            binLogKafkaData.setEventType("DeleteRowsEventData");
+           return  ((DeleteRowsEventData) eventData).getRows();
         }
 
         return Collections.emptyList();
+
     }
 
-
-    private BinLogKafkaData buildRowData(String tableName,EventData eventData) {
-        log.info("eventData->",eventData);
-
-        if (eventData instanceof WriteRowsEventData) {
-            List<Map<String, String>> afterMapList = new ArrayList<>();
-            List<Serializable[]> rows = ((WriteRowsEventData) eventData).getRows();
-            log.info("rows->length-{}",rows);
-            for(Serializable[] after : rows){
-                Map<String, String> afterMap = new HashMap<>();
-
-                int colLen = after.length;
-
-                for (int ix = 0; ix < colLen; ++ix) {
-// 取出当前位置对应的列名
-                    String colName = TemplateHolder.posMap.get(ix);
-                    String colValue = after[ix].toString();
-                    System.out.println(colValue);
-                    afterMap.put(colName, colValue);
-                }
-
-                log.info(afterMap.toString());
-
-                afterMapList.add(afterMap);
-            }
-
-            log.info("buildRowData->{}", afterMapList.toString());
-        }
-
-
-
-      /*  log.info("TemplateHolder.posMap->{}",TemplateHolder.posMap.toString());
-       // TemplateHolder.posMap
+    private void buildRowData(EventData eventData){
 
         List<Map<String, String>> afterMapList = new ArrayList<>();
 
-        for (Serializable[] after : getAfterValues(eventData)) {
+        Map<Integer, String> posMap = TemplateHolder.posMap;
 
-            Map<String, String> afterMap = new HashMap<>();
+        for(Serializable[] after:getAfterValues(eventData)){
+            Map<String,String> afterMap = new HashMap<>();
+            for(int ix=0;ix<after.length;++ix){
+               //列名
+                String colName = posMap.get(ix);
 
-            int colLen = after.length;
-
-            for (int ix = 0; ix < colLen; ++ix) {
-                System.out.println("==================");
-
-                // 取出当前位置对应的列名
-                String colName = TemplateHolder.posMap.get(ix);
-                log.info("colName---->{}",colName);
-                // 如果没有则说明不关心这个列
-                if (null == colName) {
-                    log.debug("ignore position: {}", ix);
+                if(null==colName){
                     continue;
                 }
 
-                String colValue = after[ix].toString();
-                afterMap.put(colName, colValue);
+               String colVlaue =  after[ix].toString();
+                afterMap.put(colName,colVlaue);
             }
 
-            log.info(afterMap.toString());
-
             afterMapList.add(afterMap);
+            binLogKafkaData.setAfter(afterMapList);
         }
 
-        BinLogKafkaData rowData = new BinLogKafkaData();
-        rowData.setAfter(afterMapList);
-        rowData.setTableName(tableName);
+        System.out.println(binLogKafkaData.toString());
 
-        return rowData;*/
-      return null;
-   }
+    }
 }
