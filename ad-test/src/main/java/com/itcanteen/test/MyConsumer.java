@@ -1,3 +1,4 @@
+/*
 package com.itcanteen.test;
 
 import lombok.extern.slf4j.Slf4j;
@@ -9,11 +10,13 @@ import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import java.util.Collections;
 import java.util.Properties;
 
+*/
 /**
  * @author baimugudu
  * @email 2415621370@qq.com
  * @date 2019/9/10 16:56
- */
+ *//*
+
 @Slf4j
 public class MyConsumer {
 
@@ -27,9 +30,11 @@ public class MyConsumer {
          properties.put("group.id","test-consumer-group");
      }
 
-    /**
+    */
+/**
      * 自动提交位移
-     */
+     *//*
+
      public static  void test1(){
          properties.put("enable.auto.commit",true);
          consumer = new KafkaConsumer<>(properties);
@@ -49,9 +54,11 @@ public class MyConsumer {
 
      }
 
-    /**
+    */
+/**
      * 手动同步提交位移
-     */
+     *//*
+
      public static void test2(){
          properties.put("enable.auto.commit",false);
          consumer = new KafkaConsumer<>(properties);
@@ -74,9 +81,11 @@ public class MyConsumer {
          }
      }
 
-    /**
+    */
+/**
      * 手动异步提交位移，带回调函数
-     */
+     *//*
+
      public static  void test3(){
          properties.put("enable.auto.commit",false);
          consumer = new KafkaConsumer<>(properties);
@@ -101,9 +110,11 @@ public class MyConsumer {
          }
      }
 
-    /**
+    */
+/**
      * 同步和异步混合提交（推荐使用）
-     */
+     *//*
+
     public static  void test4(){
          properties.put("enable.auto.commit",false);
          consumer = new KafkaConsumer<>(properties);
@@ -144,3 +155,4 @@ public class MyConsumer {
          test3();
      }
 }
+*/

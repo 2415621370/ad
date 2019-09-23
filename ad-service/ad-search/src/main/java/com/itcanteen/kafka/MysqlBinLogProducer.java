@@ -33,7 +33,7 @@ public class MysqlBinLogProducer {
 
     public  void send(String message){
         ProducerRecord<String, String> stringStringProducerRecord =
-                new ProducerRecord<>("test1", System.currentTimeMillis()+"", message);
+                new ProducerRecord<>("ad-search-mysql-data", System.currentTimeMillis()+"", message);
 
         producer.send(stringStringProducerRecord,new MyProducerCallBack());
 

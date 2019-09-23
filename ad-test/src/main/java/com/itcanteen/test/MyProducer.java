@@ -1,3 +1,4 @@
+/*
 package com.itcanteen.test;
 
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +10,15 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+*/
 /**
  *
  * 消息的生产者
  * @author baimugudu
  * @email 2415621370@qq.com
  * @date 2019/9/10 15:54
- */
+ *//*
+
 @Slf4j
 public class MyProducer {
 
@@ -31,10 +34,12 @@ public class MyProducer {
     }
 
 
-    /**
+    */
+/**
      * 只管发送，不管结果。一旦发生异常，造成数据丢失
      * 效率高
-     */
+     *//*
+
     public static  void test1(){
         ProducerRecord<String, String> stringStringProducerRecord =
                 new ProducerRecord<>("test0", "name", "1701B2121");
@@ -42,11 +47,13 @@ public class MyProducer {
         producer.close();
     }
 
-    /**
+    */
+/**
      * 以同步的方式发送，得到返回的数据
      * @throws ExecutionException
      * @throws InterruptedException
-     */
+     *//*
+
 
     public static void test2() throws ExecutionException, InterruptedException {
         ProducerRecord<String, String> stringStringProducerRecord =
@@ -84,9 +91,11 @@ public class MyProducer {
         producer.send(stringStringProducerRecord,new MyProducerCallBack());
     }
 
-    /**
+    */
+/**
      * 以异步回调的方式，发送消息
-     */
+     *//*
+
     private static class MyProducerCallBack implements Callback{
 
         @Override
@@ -119,3 +128,4 @@ public class MyProducer {
 
 
 }
+*/

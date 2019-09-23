@@ -5,9 +5,10 @@ import com.github.shyiko.mysql.binlog.event.*;
 import com.itcanteen.kafka.MysqlBinLogProducer;
 import com.itcanteen.mysql.TemplateHolder;
 import com.itcanteen.mysql.vo.BinLogKafkaData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import scala.util.parsing.json.JSON;
+
 
 
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  */
 
 @Component
+@Slf4j
 public class MySqlBinLogListener implements BinaryLogClient.EventListener {
 
 
@@ -66,6 +68,7 @@ public class MySqlBinLogListener implements BinaryLogClient.EventListener {
         buildRowData(event.getData());
 
        String message =  com.alibaba.fastjson.JSON.toJSONString(binLogKafkaData);
+       log.info(message);
 
         mysqlBinLogProducer.send(message);
 
