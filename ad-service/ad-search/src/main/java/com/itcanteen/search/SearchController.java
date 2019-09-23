@@ -33,6 +33,12 @@ public class SearchController {
     @Autowired(required = false)
     SearchService searchService;
 
+    /**
+     * localhost:8093/search/ads?flag=true
+     * @param request
+     * @param flag
+     * @return
+     */
 
 
     @RequestMapping("/search/ads")
